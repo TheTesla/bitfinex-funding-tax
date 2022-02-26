@@ -3,7 +3,7 @@
 You have to setup your alphavantage apikey in ``apikey.py`` and your bitfinex api credentials by calling: 
 
 ```bash
-export BFX\_KEY=yourkey 
+export BFX_KEY=yourkey 
 export BFX_SECRET=yoursecret
 ```
 
