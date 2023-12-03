@@ -22,10 +22,10 @@ bfx = Client(
   logLevel='DEBUG'
 )
 
-dt = datetime(2020, 1, 1)
+dt = datetime(2022, 1, 1)
 starttime = int(round(dt.timestamp() * 1000))
 
-dt = datetime(2020, 12, 31)
+dt = datetime(2022, 12, 31)
 endtime = int(round(dt.timestamp() * 1000))
 
 
@@ -67,7 +67,12 @@ async def qryData(symbols, function='TIME_SERIES_DAILY', outputsize='compact'):
     return dvs
 
 async def log_funding_credits_history(cur='FIL'):
-  exch = await qryData([cur], 'DIGITAL_CURRENCY_DAILY', 'full')
+  exch = await qryData([cur], 'DIGITAL_CURRENCY_WEEKLY', 'full')
+  #print(exch)
+  excht = {datetime.fromisoformat(k).timestamp(): v for k, v in exch.items()}
+  #print(excht)
+  exch = {datetime.fromtimestamp(k+i*24*60*60).isoformat()[:10]: v for k, v in excht.items() for i in range(7)}
+  #print(exch)
   credit = []
   interv = 2678400000
   t = starttime
@@ -84,7 +89,11 @@ async def log_funding_credits_history(cur='FIL'):
   for c in credit:
       days = (c.mts_update-c.mts_create)/1000/60/60/24
       date = ms2datestr(c.mts_create)
-      xch = float(exch[date][cur][0])
+      try:
+        xch = float(exch[date][cur][0])
+      except Exception as e:
+        xch = 0
+        print(e)
       earn = c.amount * c.rate * days
       total += xch*earn
       print("{}  {}  {}  {:10.5f}  {:16.11f}  {:14.11f}  {:18.15f}  {:12.5f}  {:18.15f}".format(c.symbol, date,
@@ -97,7 +106,11 @@ async def log_funding_credits_history(cur='FIL'):
 
 async def run():
   await log_funding_credits_history('FIL')
-  await log_funding_credits_history('BTC')
+  #await log_funding_credits_history('LUNA')
+  await log_funding_credits_history('TRX')
+  await log_funding_credits_history('MKR')
+  #await log_funding_credits_history('AXS')
+  await log_funding_credits_history('NEO')
 
 
 
